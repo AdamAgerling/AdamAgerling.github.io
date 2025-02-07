@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
   navElement.className = "navbar navbar-expand-lg bg-dark navbar-dark";
   navElement.innerHTML = `
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">Valorant</a>
+            <a class="navbar-brand text-danger fs-2" href="/">Valorant</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   showSearchBar
                     ? `<form class="d-flex" role="search">
                     <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success" type="submit">Search</button>
+                    <button class="btn btn-outline-danger" type="submit">Search</button>
                 </form> `
                     : ""
                 } 
