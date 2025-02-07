@@ -2,7 +2,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const currentPath = window.location.pathname;
 
   let showSearchBar = false;
-  if (currentPath === "/agents.html" || currentPath === "/maps.html") {
+  if (
+    currentPath === "/navigation/agents.html" ||
+    currentPath === "/navigation/maps.html"
+  ) {
     showSearchBar = true;
   }
 
@@ -17,13 +20,16 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="agents.html">Agents</a>
+                        <a class="nav-link" href="/navigation/agents.html">Agents</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="maps.html">Maps</a>
+                        <a class="nav-link" href="/navigation/maps.html">Maps</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="about.html">About</a>
+                       <a class="nav-link" href="/navigation/fakeshop.html">Fake Shop</a>
+                   </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/navigation/about.html">About</a>
                     </li>
                 </ul>
                 ${
