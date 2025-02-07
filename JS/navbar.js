@@ -55,6 +55,4 @@ document.addEventListener("DOMContentLoaded", function () {
       link.setAttribute("aria-current", "page");
     }
   });
-
-  console.log(showSearchBar);
 });
