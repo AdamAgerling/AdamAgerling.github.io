@@ -1,0 +1,26 @@
+.c-item {
+  height: 256px;
+  object-fit: cover;
+}
+.agents-bg {
+  background-color: #eed7b5;
+}
+.custom-pointer {
+  cursor: pointer;
+}
+li {
+  list-style-type: none;
+}
+.ability-img {
+  width: 10%;
+  object-fit: cover;
+  background: #333;
+}
+
+.map-img {
+  height: 100px;
+  object-fit: cover;
+}
+.maps-bg {
+  background-color: #c8ffe8;
+}
