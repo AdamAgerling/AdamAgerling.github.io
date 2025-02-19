@@ -1,4 +1,8 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+  let agents = [];
+  let currentIndex = 0;
+  const agentsPerPage = 9;
+
   const fetchData = async (url) => {
     try {
       const response = await fetch(url);
@@ -6,66 +10,100 @@ document.addEventListener("DOMContentLoaded", function () {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      return data;
+      return data.data.filter((agent) => agent.isPlayableCharacter);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
-  const renderAgents = (agents) => {
-    return new Promise((resolve) => {
-      const agentsContainer = document.getElementById("agents");
-      agentsContainer.innerHTML = "";
+  const renderAgents = () => {
+    const agentsContainer = document.getElementById("agents");
+    const loadMoreContainer = document.getElementById("loadMoreContainer");
+    const endIndex = Math.min(currentIndex + agentsPerPage, agents.length);
 
-      agents.forEach((agent) => {
-        const col = document.createElement("div");
-        col.className = "col-md-3 mb-3";
+    for (let i = currentIndex; i < endIndex; i++) {
+      const agent = agents[i];
 
-        const card = document.createElement("div");
-        card.className = "card custom-pointer";
+      const col = document.createElement("div");
+      col.className = "col-md-4 mb-3";
 
-        const cardBody = document.createElement("div");
-        cardBody.className = "card-body";
+      const card = document.createElement("div");
+      card.className = "card custom-pointer";
 
-        const cardTitle = document.createElement("h5");
-        cardTitle.className = "card-title text-center";
-        cardTitle.textContent = agent.displayName;
+      const cardBody = document.createElement("div");
+      cardBody.className = "card-body";
 
-        const cardLine = document.createElement("hr");
+      const cardTitle = document.createElement("h5");
+      cardTitle.className = "card-title text-center";
+      cardTitle.textContent = agent.displayName;
 
-        const cardText = document.createElement("p");
-        cardText.className = "card-text";
-        cardText.textContent = agent.description || "No description available.";
+      const cardLine = document.createElement("hr");
 
-        const cardImage = document.createElement("img");
-        cardImage.className = "card-img-top c-item";
-        cardImage.src = agent.displayIcon;
-        cardImage.alt = agent.displayName;
+      const cardText = document.createElement("p");
+      cardText.className = "card-text";
+      cardText.textContent = agent.description || "No description available.";
 
-        card.addEventListener("click", () => {
-          openAgentModal(agent);
-        });
+      const cardImage = document.createElement("img");
+      cardImage.className = "card-img-top c-item";
+      cardImage.src = agent.displayIcon;
+      cardImage.alt = agent.displayName;
 
-        cardBody.appendChild(cardTitle);
-        cardBody.appendChild(cardLine);
-        cardBody.appendChild(cardText);
-        card.appendChild(cardImage);
-        card.appendChild(cardBody);
-        col.appendChild(card);
-        agentsContainer.appendChild(col);
+      card.addEventListener("click", () => {
+        openAgentModal(agent);
       });
 
-      resolve();
-    });
-  };
-
-  const openAgentModal = (agent) => {
-    const existingModal = document.getElementById("agentModal");
-    if (existingModal) {
-      existingModal.remove();
+      cardBody.appendChild(cardTitle);
+      cardBody.appendChild(cardLine);
+      cardBody.appendChild(cardText);
+      card.appendChild(cardImage);
+      card.appendChild(cardBody);
+      col.appendChild(card);
+      agentsContainer.appendChild(col);
     }
 
-    const modalContent = `
+    currentIndex = endIndex;
+    if (loadMoreContainer) {
+      agentsContainer.appendChild(loadMoreContainer);
+    }
+
+    updateLoadMoreButton();
+  };
+
+  const updateLoadMoreButton = () => {
+    const loadMoreButton = document.getElementById("loadMore");
+    if (!loadMoreButton) return;
+    if (currentIndex >= agents.length) {
+      loadMoreButton.classList.add("d-none");
+    } else {
+      loadMoreButton.classList.remove("d-none");
+    }
+  };
+
+  const initLoadMoreButton = () => {
+    const loadMoreContainer = document.getElementById("loadMoreContainer");
+
+    const button = document.createElement("button");
+    button.id = "loadMore";
+    button.textContent = "Load More Agents";
+    button.className = "btn btn-danger d-block mx-auto my-3 ";
+    loadMoreContainer.appendChild(button);
+
+    button.addEventListener("click", renderAgents);
+  };
+
+  agents = await fetchData("https://valorant-api.com/v1/agents");
+  renderAgents();
+  initLoadMoreButton();
+  addFooter();
+});
+
+const openAgentModal = (agent) => {
+  const existingModal = document.getElementById("agentModal");
+  if (existingModal) {
+    existingModal.remove();
+  }
+
+  const modalContent = `
         <div class="modal fade" id="agentModal" tabindex="-1" aria-labelledby="agentModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -104,24 +142,10 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
       `;
 
-    document.body.insertAdjacentHTML("beforeend", modalContent);
-    const agentModal = new bootstrap.Modal(
-      document.getElementById("agentModal")
-    );
-    agentModal.show();
-  };
-
-  fetchData("https://valorant-api.com/v1/agents")
-    .then((data) => {
-      const playableAgents = data.data.filter(
-        (agent) => agent.isPlayableCharacter
-      );
-      return renderAgents(playableAgents).then(() => {
-        addFooter();
-      });
-    })
-    .catch((error) => console.error("Fetch error:", error));
-});
+  document.body.insertAdjacentHTML("beforeend", modalContent);
+  const agentModal = new bootstrap.Modal(document.getElementById("agentModal"));
+  agentModal.show();
+};
 
 function addFooter() {
   const footerElement = document.createElement("div");

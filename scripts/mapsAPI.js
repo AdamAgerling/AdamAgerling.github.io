@@ -1,4 +1,8 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+  let maps = [];
+  let currentIndex = 0;
+  const mapsPerPage = 9;
+
   const fetchData = async (url) => {
     try {
       const response = await fetch(url);
@@ -6,68 +10,106 @@ document.addEventListener("DOMContentLoaded", function () {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      return data;
+      return data.data.filter(
+        (map) =>
+          map.displayName !== "Basic Training" &&
+          map.displayName !== "The Range"
+      );
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
   const renderMaps = (maps) => {
-    return new Promise((resolve) => {
-      const mapsContainer = document.getElementById("maps");
-      mapsContainer.innerHTML = "";
+    const mapsContainer = document.getElementById("maps");
+    const loadMoreContainer = document.getElementById("loadMoreContainer");
+    const endIndex = Math.min(currentIndex + mapsPerPage, maps.length);
 
-      maps.forEach((map) => {
-        const col = document.createElement("div");
-        col.className = "col-md-4 mb-3";
+    for (let i = currentIndex; i < endIndex; i++) {
+      const map = maps[i];
 
-        const card = document.createElement("div");
-        card.className = "card custom-pointer";
+      const col = document.createElement("div");
+      col.className = "col-md-4 mb-3";
 
-        const cardBody = document.createElement("div");
-        cardBody.className = "card-body";
+      const card = document.createElement("div");
+      card.className = "card custom-pointer";
 
-        const cardTitle = document.createElement("h5");
-        cardTitle.className = "card-title text-center";
-        cardTitle.textContent = map.displayName;
+      const cardBody = document.createElement("div");
+      cardBody.className = "card-body";
 
-        const cardLine = document.createElement("hr");
+      const cardTitle = document.createElement("h5");
+      cardTitle.className = "card-title text-center";
+      cardTitle.textContent = map.displayName;
 
-        const cardText = document.createElement("p");
-        cardText.className = "card-text text-center";
-        cardText.textContent =
-          map.tacticalDescription || "No tactical description available.";
+      const cardLine = document.createElement("hr");
 
-        const cardImage = document.createElement("img");
-        cardImage.fetchpriority = "high";
-        cardImage.className = "card-img-top map-img ";
-        cardImage.src = map.listViewIcon;
-        cardImage.alt = map.displayName;
+      const cardText = document.createElement("p");
+      cardText.className = "card-text text-center";
+      cardText.textContent =
+        map.tacticalDescription || "No tactical description available.";
 
-        card.addEventListener("click", () => {
-          openMapsModal(map);
-        });
+      const cardImage = document.createElement("img");
+      cardImage.fetchpriority = "high";
+      cardImage.className = "card-img-top map-img ";
+      cardImage.src = map.listViewIcon;
+      cardImage.alt = map.displayName;
 
-        cardBody.appendChild(cardTitle);
-        cardBody.appendChild(cardLine);
-        cardBody.appendChild(cardText);
-        card.appendChild(cardImage);
-        card.appendChild(cardBody);
-        col.appendChild(card);
-        mapsContainer.appendChild(col);
+      card.addEventListener("click", () => {
+        openMapsModal(map);
       });
 
-      resolve();
-    });
-  };
-
-  const openMapsModal = (map) => {
-    const existingModal = document.getElementById("mapModal");
-    if (existingModal) {
-      existingModal.remove();
+      cardBody.appendChild(cardTitle);
+      cardBody.appendChild(cardLine);
+      cardBody.appendChild(cardText);
+      card.appendChild(cardImage);
+      card.appendChild(cardBody);
+      col.appendChild(card);
+      mapsContainer.appendChild(col);
     }
 
-    const modalContent = `
+    currentIndex = endIndex;
+    if (loadMoreContainer) {
+      mapsContainer.appendChild(loadMoreContainer);
+    }
+
+    updateLoadMoreButton();
+  };
+
+  const updateLoadMoreButton = () => {
+    const loadMoreButton = document.getElementById("loadMore");
+    if (!loadMoreButton) return;
+    if (currentIndex >= maps.length) {
+      loadMoreButton.classList.add("d-none");
+    } else {
+      loadMoreButton.classList.remove("d-none");
+    }
+  };
+
+  const initLoadMoreButton = () => {
+    const loadMoreContainer = document.getElementById("loadMoreContainer");
+
+    const button = document.createElement("button");
+    button.id = "loadMore";
+    button.textContent = "Load More Maps";
+    button.className = "btn btn-danger d-block mx-auto my-3 ";
+    loadMoreContainer.appendChild(button);
+
+    button.addEventListener("click", () => renderMaps(maps));
+  };
+
+  maps = await fetchData("https://valorant-api.com/v1/maps");
+  renderMaps(maps);
+  initLoadMoreButton();
+  addFooter();
+});
+
+const openMapsModal = (map) => {
+  const existingModal = document.getElementById("mapModal");
+  if (existingModal) {
+    existingModal.remove();
+  }
+
+  const modalContent = `
           <div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
               <div class="modal-content">
@@ -117,24 +159,10 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
         `;
 
-    document.body.insertAdjacentHTML("beforeend", modalContent);
-    const mapModal = new bootstrap.Modal(document.getElementById("mapModal"));
-    mapModal.show();
-  };
-
-  fetchData("https://valorant-api.com/v1/maps")
-    .then((data) => {
-      const actualMaps = data.data.filter(
-        (map) =>
-          map.displayName !== "The Range" &&
-          map.displayName !== "Basic Training"
-      );
-      return renderMaps(actualMaps).then(() => {
-        addFooter();
-      });
-    })
-    .catch((error) => console.error("Fetch error:", error));
-});
+  document.body.insertAdjacentHTML("beforeend", modalContent);
+  const mapModal = new bootstrap.Modal(document.getElementById("mapModal"));
+  mapModal.show();
+};
 
 function addFooter() {
   const footerElement = document.createElement("div");
