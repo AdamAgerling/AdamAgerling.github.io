@@ -153,6 +153,11 @@ document.addEventListener("DOMContentLoaded", async function () {
           .join("")}
       </ul>
       <p class="text-center fs-5 fw-bold">Total cost: ${totalCost} Credits</p>
+     ${
+       cart.length === 0
+         ? ""
+         : "<button class='btn btn-success w-100'>Checkout</button>"
+     }
     `;
   };
 
