@@ -3,7 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../Styles/styles.css" />
+    <meta
+      name="description"
+      content="This page is using the Valorant-api to fetch weapons, and is set up as a fake shop."
+    />
+    <link rel="stylesheet" href="../Styles/shop.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
@@ -13,22 +17,38 @@
       rel="stylesheet"
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
+      defer
     />
-    <script
-      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-      crossorigin="anonymous"
-    ></script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
       integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
       crossorigin="anonymous"
+      defer
     ></script>
     <script src="../scripts/navbar.js"></script>
-    <script src="../scripts/footer.js"></script>
-    <title>Document</title>
+    <script src="../scripts/fakeshop.js"></script>
+    <title>Fake shop</title>
   </head>
   <body>
-    <div class="bg-dark text-light" id="footerId"></div>
+    <main>
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <h1 class="text-center">Fake Shop</h1>
+            <div id="cart-icon" class="cart-icon"></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="row" id="weapons"></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col text-center">
+            <div id="loadMoreContainer"></div>
+          </div>
+        </div>
+      </div>
+    </main>
   </body>
 </html>

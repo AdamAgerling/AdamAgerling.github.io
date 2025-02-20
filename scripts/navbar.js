@@ -1,14 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
   const currentPath = window.location.pathname;
 
-  let showSearchBar = false;
-  if (
-    currentPath === "/navigation/agents.html" ||
-    currentPath === "/navigation/maps.html"
-  ) {
-    showSearchBar = true;
-  }
-
   const navElement = document.createElement("nav");
   navElement.className = "navbar navbar-expand-lg bg-dark navbar-dark";
   navElement.innerHTML = `
