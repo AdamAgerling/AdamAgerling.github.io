@@ -1,0 +1,10 @@
+.map-img {
+  height: 100px;
+  object-fit: cover;
+}
+.maps-bg {
+  background-color: #c8ffe8;
+}
+.custom-pointer {
+  cursor: pointer;
+}
