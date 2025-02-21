@@ -1,0 +1,16 @@
+body {
+  background-color: salmon;
+  font-family: "Times New Roman", Times, serif;
+}
+.c-img {
+  height: 350px;
+  width: 350px;
+  object-fit: contain;
+}
+.bg-salmon {
+  background-color: salmon;
+}
+
+.bg-contact {
+  background-color: rgb(190, 226, 148);
+}

@@ -83,11 +83,36 @@ document.addEventListener("DOMContentLoaded", async function () {
       const addToCartButton = document.createElement("button");
       addToCartButton.className = "btn btn-primary w-100";
       addToCartButton.textContent = "Add to cart";
-      addToCartButton.addEventListener("click", () => addToCart(weapon));
+      addToCartButton.addEventListener("click", () => {
+        const selectedOption = skinSelect.options[skinSelect.selectedIndex];
+        addToCart(weapon, selectedOption.textContent, selectedOption.value);
+      });
+
+      const skinSelect = document.createElement("select");
+      skinSelect.className = "form-select my-2";
+
+      const defaultOption = document.createElement("option");
+      defaultOption.value = weapon.displayIcon;
+      defaultOption.textContent = "Standard";
+      skinSelect.appendChild(defaultOption);
+
+      weapon.skins.forEach((skin) => {
+        if (skin.displayIcon) {
+          const option = document.createElement("option");
+          option.value = skin.displayIcon;
+          option.textContent = skin.displayName;
+          skinSelect.appendChild(option);
+        }
+      });
+
+      skinSelect.addEventListener("change", (event) => {
+        cardImage.src = event.target.value;
+      });
 
       cardBody.appendChild(cardTitle);
       cardBody.appendChild(cardLine);
       cardBody.appendChild(cardText);
+      cardBody.appendChild(skinSelect);
       cardBody.appendChild(addToCartButton);
       card.appendChild(cardImage);
       card.appendChild(cardBody);
@@ -113,12 +138,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     loadMoreButton.classList.toggle("d-none", currentIndex >= weapons.length);
   };
 
-  const addToCart = (weapon) => {
-    const existingItem = cart.find((item) => item.uuid === weapon.uuid);
+  const addToCart = (weapon, selectedSkinName, selectedSkinIcon) => {
+    const existingItem = cart.find(
+      (item) =>
+        item.uuid === weapon.uuid && item.selectedSkinName == selectedSkinName
+    );
     if (existingItem) {
       existingItem.quantity += 1;
     } else {
-      cart.push({ ...weapon, quantity: 1 });
+      cart.push({ ...weapon, quantity: 1, selectedSkinName, selectedSkinIcon });
     }
     updateCartUI();
   };
@@ -162,7 +190,9 @@ document.addEventListener("DOMContentLoaded", async function () {
           .map(
             (item) => `
           <li>
-            ${item.displayName} - ${item.shopData?.cost || 0} Credits
+            ${item.displayName} - ${item.selectedSkinName} - ${
+              item.shopData?.cost || 0
+            } Credits 
             <br/>
             Quantity: ${item.quantity}
             <button class="btn btn-sm btn-danger" onclick="adjustQuantity('${
