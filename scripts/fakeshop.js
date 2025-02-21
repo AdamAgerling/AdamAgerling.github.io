@@ -4,6 +4,31 @@ document.addEventListener("DOMContentLoaded", async function () {
   const weaponsPerPage = 6;
   let currentIndex = 0;
 
+  //Credit to modigida for the convertImageToFormat function from the following link: https://github.com/modigida/BookStore/blob/main/Books.js
+  async function convertImageToFormat(imageUrl, format = "webp") {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = imageUrl;
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        resolve(canvas.toDataURL(`image/${format}`));
+      };
+
+      img.onerror = () => {
+        console.error(`Failed to load image: ${imageUrl}`);
+        resolve(imageUrl);
+      };
+    });
+  }
+
   const fetchData = async (url) => {
     try {
       const cachedData = localStorage.getItem("weapons");
@@ -35,7 +60,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       col.className = "col-md-4 mb-3";
 
       const card = document.createElement("div");
-      card.className = "card custom-pointer";
+      card.className = "card shadow-lg custom-pointer";
 
       const cardBody = document.createElement("div");
       cardBody.className = "card-body";
@@ -52,12 +77,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       const cardImage = document.createElement("img");
       cardImage.className = "card-img-top weapon-img";
-      cardImage.src = weapon.displayIcon;
+      cardImage.fetchpriority = "high";
       cardImage.alt = weapon.displayName;
 
       const addToCartButton = document.createElement("button");
       addToCartButton.className = "btn btn-primary w-100";
-      addToCartButton.textContent = "Lägg till i varukorgen";
+      addToCartButton.textContent = "Add to cart";
       addToCartButton.addEventListener("click", () => addToCart(weapon));
 
       cardBody.appendChild(cardTitle);
@@ -68,6 +93,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       card.appendChild(cardBody);
       col.appendChild(card);
       weaponsContainer.appendChild(col);
+
+      convertImageToFormat(weapon.displayIcon, "webp").then((webpSrc) => {
+        cardImage.src = webpSrc;
+      });
     }
 
     currentIndex = endIndex;
@@ -81,11 +110,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const updateLoadMoreButton = () => {
     const loadMoreButton = document.getElementById("loadMore");
     if (!loadMoreButton) return;
-    if (currentIndex >= weapons.length) {
-      loadMoreButton.classList.add("d-none");
-    } else {
-      loadMoreButton.classList.remove("d-none");
-    }
+    loadMoreButton.classList.toggle("d-none", currentIndex >= weapons.length);
   };
 
   const addToCart = (weapon) => {
@@ -174,7 +199,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
               </div>
               <div class="modal-body" id="cartModalBody">
-                <p>Varukorgen är tom.</p>
+                <p>The cart is empty.</p>
               </div>
             </div>
           </div>

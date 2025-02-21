@@ -3,23 +3,29 @@ document.addEventListener("DOMContentLoaded", async function () {
   let currentIndex = 0;
   const mapsPerPage = 9;
 
-  async function CacheImage(url) {
-    const cache = await caches.open("image-cache");
-    const cachedResponse = await cache.match(url);
-    if (cachedResponse) {
-      return url;
-    }
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
-      }
-      await cache.put(url, response.clone());
-      return url;
-    } catch (error) {
-      console.error("Error caching image:", error);
-      return url;
-    }
+  //Credit to modigida for the convertImageToFormat function from the following link: https://github.com/modigida/BookStore/blob/main/Books.js
+  async function convertImageToFormat(imageUrl, format = "webp") {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = imageUrl;
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        resolve(canvas.toDataURL(`image/${format}`));
+      };
+
+      img.onerror = () => {
+        console.error(`Failed to load image: ${imageUrl}`);
+        resolve(imageUrl);
+      };
+    });
   }
 
   const fetchData = async (url) => {
@@ -58,7 +64,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       col.className = "col-md-4 mb-3";
 
       const card = document.createElement("div");
-      card.className = "card custom-pointer";
+      card.className = "card shadow-lg custom-pointer";
 
       const cardBody = document.createElement("div");
       cardBody.className = "card-body";
@@ -77,12 +83,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       const cardImage = document.createElement("img");
       cardImage.fetchpriority = "high";
       cardImage.className = "card-img-top map-img ";
-      cardImage.src = map.listViewIcon;
       cardImage.alt = map.displayName;
-
-      card.addEventListener("click", () => {
-        openMapsModal(map);
-      });
 
       cardBody.appendChild(cardTitle);
       cardBody.appendChild(cardLine);
@@ -91,41 +92,27 @@ document.addEventListener("DOMContentLoaded", async function () {
       card.appendChild(cardBody);
       col.appendChild(card);
       mapsContainer.appendChild(col);
+
+      convertImageToFormat(map.listViewIcon, "webp").then((webpSrc) => {
+        cardImage.src = webpSrc;
+      });
+
+      card.addEventListener("click", () => {
+        openMapsModal(map);
+      });
     }
 
     currentIndex = endIndex;
     if (loadMoreContainer) {
       mapsContainer.appendChild(loadMoreContainer);
     }
-
     updateLoadMoreButton();
-    lazyLoadImages();
-  };
-
-  const lazyLoadImages = () => {
-    const lazyImages = document.querySelectorAll("img.lazy-load");
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(async (entry) => {
-        if (entry.isIntersecting) {
-          const img = entry.target;
-          img.src = await cacheImage(img.dataset.src);
-          img.classList.remove("lazy-load");
-          observer.unobserve(img);
-        }
-      });
-    });
-
-    lazyImages.forEach((img) => observer.observe(img));
   };
 
   const updateLoadMoreButton = () => {
     const loadMoreButton = document.getElementById("loadMore");
     if (!loadMoreButton) return;
-    if (currentIndex >= maps.length) {
-      loadMoreButton.classList.add("d-none");
-    } else {
-      loadMoreButton.classList.remove("d-none");
-    }
+    loadMoreButton.classList.toggle("d-none", currentIndex >= maps.length);
   };
 
   const initLoadMoreButton = () => {

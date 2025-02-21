@@ -3,48 +3,54 @@ document.addEventListener("DOMContentLoaded", async function () {
   let currentIndex = 0;
   const agentsPerPage = 9;
 
-  async function CacheImage(url) {
-    const cache = await caches.open("image-cache");
-    const cachedResponse = await cache.match(url);
-    if (cachedResponse) {
-      return url;
-    }
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
-      }
-      await cache.put(url, response.clone());
-      return url;
-    } catch (error) {
-      console.error("Error caching image:", error);
-      return url;
-    }
+  //Credit to modigida for the convertImageToFormat function from the following link: https://github.com/modigida/BookStore/blob/main/Books.js
+  async function convertImageToFormat(imageUrl, format = "webp") {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = imageUrl;
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        resolve(canvas.toDataURL(`image/${format}`));
+      };
+
+      img.onerror = () => {
+        console.error(`Failed to load image: ${imageUrl}`);
+        resolve(imageUrl);
+      };
+    });
   }
 
   const fetchData = async (url) => {
     try {
       const cachedData = localStorage.getItem("agents");
-      if (cachedData) {
-        return JSON.parse(cachedData);
-      }
+      if (cachedData) return JSON.parse(cachedData);
 
       const response = await fetch(url);
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
-      }
+
       const data = await response.json();
       const filteredAgents = data.data.filter(
         (agent) => agent.isPlayableCharacter
       );
       localStorage.setItem("agents", JSON.stringify(filteredAgents));
+
       return filteredAgents;
     } catch (error) {
       console.error("Error fetching data:", error);
+      return [];
     }
   };
 
-  const renderAgents = () => {
+  const renderAgents = async () => {
     const agentsContainer = document.getElementById("agents");
     const loadMoreContainer = document.getElementById("loadMoreContainer");
     const endIndex = Math.min(currentIndex + agentsPerPage, agents.length);
@@ -56,7 +62,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       col.className = "col-md-4 mb-3";
 
       const card = document.createElement("div");
-      card.className = "card custom-pointer";
+      card.className = "card shadow-lg custom-pointer";
 
       const cardBody = document.createElement("div");
       cardBody.className = "card-body";
@@ -74,54 +80,32 @@ document.addEventListener("DOMContentLoaded", async function () {
       const cardImage = document.createElement("img");
       cardImage.className = "card-img-top c-item";
       cardImage.fetchpriority = "high";
-      cardImage.src = agent.displayIcon;
       cardImage.alt = agent.displayName;
 
-      card.addEventListener("click", () => {
-        openAgentModal(agent);
-      });
-
+      card.appendChild(cardImage);
+      card.appendChild(cardBody);
       cardBody.appendChild(cardTitle);
       cardBody.appendChild(cardLine);
       cardBody.appendChild(cardText);
-      card.appendChild(cardImage);
-      card.appendChild(cardBody);
       col.appendChild(card);
       agentsContainer.appendChild(col);
+
+      convertImageToFormat(agent.displayIcon, "webp").then((webpSrc) => {
+        cardImage.src = webpSrc;
+      });
+
+      card.addEventListener("click", () => openAgentModal(agent));
     }
 
     currentIndex = endIndex;
-    if (loadMoreContainer) {
-      agentsContainer.appendChild(loadMoreContainer);
-    }
+    if (loadMoreContainer) agentsContainer.appendChild(loadMoreContainer);
     updateLoadMoreButton();
-    lazyLoadImages();
-  };
-
-  const lazyLoadImages = () => {
-    const lazyImages = document.querySelectorAll("img.lazy-load");
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(async (entry) => {
-        if (entry.isIntersecting) {
-          const img = entry.target;
-          img.src = await cacheImage(img.dataset.src);
-          img.classList.remove("lazy-load");
-          observer.unobserve(img);
-        }
-      });
-    });
-
-    lazyImages.forEach((img) => observer.observe(img));
   };
 
   const updateLoadMoreButton = () => {
     const loadMoreButton = document.getElementById("loadMore");
     if (!loadMoreButton) return;
-    if (currentIndex >= agents.length) {
-      loadMoreButton.classList.add("d-none");
-    } else {
-      loadMoreButton.classList.remove("d-none");
-    }
+    loadMoreButton.classList.toggle("d-none", currentIndex >= agents.length);
   };
 
   const initLoadMoreButton = () => {
@@ -130,7 +114,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const button = document.createElement("button");
     button.id = "loadMore";
     button.textContent = "Load More Agents";
-    button.className = "btn btn-danger d-block mx-auto my-3 ";
+    button.className = "btn btn-danger d-block mx-auto my-3";
     loadMoreContainer.appendChild(button);
 
     button.addEventListener("click", renderAgents);
@@ -143,20 +127,15 @@ document.addEventListener("DOMContentLoaded", async function () {
 });
 
 const openAgentModal = (agent) => {
-  const existingModal = document.getElementById("agentModal");
-  if (existingModal) {
-    existingModal.remove();
-  }
+  document.getElementById("agentModal")?.remove();
 
   const modalContent = `
         <div class="modal fade" id="agentModal" tabindex="-1" aria-labelledby="agentModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
               <div class="modal-header">
-                <h4 class="modal-title" id="agentModalLabel">${
-                  agent.displayName
-                }</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h4 class="modal-title">${agent.displayName}</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
               </div>
               <div class="modal-body">
                 <img src="${
@@ -169,27 +148,28 @@ const openAgentModal = (agent) => {
                 <ul>
                   ${agent.abilities
                     .map(
-                      (ability) =>
-                        `<li>
-                        <img src="${
-                          ability.displayIcon || agent.displayIcon
-                        }" class="img-fluid mb-3 ability-img" alt="${
-                          ability.displayName
-                        }"> <br/>
-                        <strong>${ability.displayName}:</strong>
-                         ${ability.description}</li>`
+                      (ability) => `
+                        <li>
+                          <img src="${
+                            ability.displayIcon || agent.displayIcon
+                          }" class="img-fluid mb-3 ability-img" alt="${
+                        ability.displayName
+                      }">
+                          <br/>
+                          <strong>${ability.displayName}:</strong> ${
+                        ability.description
+                      }
+                        </li>`
                     )
                     .join("")}
                 </ul>
               </div>
             </div>
           </div>
-        </div>
-      `;
+        </div>`;
 
   document.body.insertAdjacentHTML("beforeend", modalContent);
-  const agentModal = new bootstrap.Modal(document.getElementById("agentModal"));
-  agentModal.show();
+  new bootstrap.Modal(document.getElementById("agentModal")).show();
 };
 
 function addFooter() {
@@ -198,64 +178,10 @@ function addFooter() {
   footerElement.innerHTML = `
         <footer class="py-3">
           <ul class="nav justify-content-center border-bottom pb-3 mb-3">
-            <li class="nav-item">
-              <a href="/" class="nav-link px-2 text-light">Home</a>
-            </li>
-            <li class="nav-item">
-              <a href="/navigation/agents.html" class="nav-link px-2 text-light">Agents</a>
-            </li>
-            <li class="nav-item">
-              <a href="/navigation/maps.html" class="nav-link px-2 text-light">Maps</a>
-            </li>
-            <li class="nav-item">
-              <a href="/navigation/fakeshop.html" class="nav-link px-2 text-light">Fake shop</a>
-            </li>
-            <li class="nav-item">
-              <a href="/navigation/about.html" class="nav-link px-2 text-light">About us</a>
-            </li>
+            <li class="nav-item"><a href="/" class="nav-link px-2 text-light">Home</a></li>
+            <li class="nav-item"><a href="/navigation/agents.html" class="nav-link px-2 text-light">Agents</a></li>
           </ul>
           <p class="text-center text-body-light">© 2025 Vaken, Inc</p>
-        </footer>
-      `;
-
+        </footer>`;
   document.body.appendChild(footerElement);
 }
-
-// Might scratch this.
-// document.addEventListener("DOMContentLoaded", function () {
-//   if (
-//     window.location.pathname === "/navigation/agents.html" ||
-//     window.location.pathname === "/navigation/maps.html"
-//   ) {
-//     const searchContainer = document.createElement("div");
-//     searchContainer.className = "container text-center";
-
-//     searchContainer.innerHTML = `
-//            <input id="SearchBar" class="form-control" type="text" ${
-//              window.location.pathname === "/navigation/agents.html"
-//                ? "placeholder='Filter Agents"
-//                : "placeholder='Filter Maps"
-//            } aria-label="Search">
-//            `;
-//     document.body.insertBefore(searchContainer, document.body.firstChild);
-//     document
-//       .getElementById("SearchBar")
-//       .addEventListener("input", filterAgents);
-//   }
-// });
-// Might scratch this aswell
-// function filterAgents() {
-//   const filterName = document.getElementById("SearchBar").value.toLowerCase();
-//   const agents = document.querySelectorAll(".card-title");
-
-//   agents.forEach((agent) => {
-//     const agentName = card
-//       .querySelector(".card-title")
-//       .textContent.toLowerCase();
-//     if (agentName.includes(filterName)) {
-//       card.style.display = "block";
-//     } else {
-//       card.style.display = "none";
-//     }
-//   });
-// }
