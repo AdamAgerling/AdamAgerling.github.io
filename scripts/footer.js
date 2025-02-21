@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
               <a href="/navigation/about.html" class="nav-link px-2 text-light">About us</a>
             </li>
           </ul>
-          <p class="text-center text-body-danger">© 2025 Vaken, Inc</p>
+          <p class="text-center text-body-danger">&copy; 2025 Vaken, Inc</p>
         </footer>
       `;
 

@@ -176,12 +176,25 @@ function addFooter() {
   const footerElement = document.createElement("div");
   footerElement.className = "bg-dark text-light";
   footerElement.innerHTML = `
-        <footer class="py-3">
+         <footer class="py-3 mt-4">
           <ul class="nav justify-content-center border-bottom pb-3 mb-3">
-            <li class="nav-item"><a href="/" class="nav-link px-2 text-light">Home</a></li>
-            <li class="nav-item"><a href="/navigation/agents.html" class="nav-link px-2 text-light">Agents</a></li>
+            <li class="nav-item">
+              <a href="/" class="nav-link px-2 text-light">Home</a>
+            </li>
+            <li class="nav-item">
+              <a href="/navigation/agents.html" class="nav-link px-2 text-light">Agents</a>
+            </li>
+            <li class="nav-item">
+              <a href="/navigation/maps.html" class="nav-link px-2 text-light">Maps</a>
+            </li>
+            <li class="nav-item">
+              <a href="/navigation/fakeshop.html" class="nav-link px-2 text-light">Fake shop</a>
+            </li>
+            <li class="nav-item">
+              <a href="/navigation/about.html" class="nav-link px-2 text-light">About us</a>
+            </li>
           </ul>
-          <p class="text-center text-body-light">© 2025 Vaken, Inc</p>
+          <p class="text-center text-body-danger">&copy; 2025 Vaken, Inc</p>
         </footer>`;
   document.body.appendChild(footerElement);
 }
