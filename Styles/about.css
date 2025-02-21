@@ -14,3 +14,8 @@ body {
 .bg-contact {
   background-color: rgb(190, 226, 148);
 }
+
+.a-link {
+  color: inherit;
+  text-decoration: none;
+}

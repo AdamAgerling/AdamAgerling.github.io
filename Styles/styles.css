@@ -9,3 +9,10 @@
   object-fit: cover;
   filter: brightness(0.6);
 }
+footer {
+  position: fixed;
+  bottom: 0;
+  padding-top: 10px;
+  background: #212529;
+  width: 100%;
+}
