@@ -12,16 +12,23 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
     />
-    <link
-      rel="preload"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      as="style"
-    />
+
+    <link rel="preload" as="image" href="images/Carousel1.webp" />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
-      onload="this.onload=null;this.rel='stylesheet'"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+      defer
     />
+    <script src="/scripts/navbar.js" defer></script>
+    <script src="/scripts/footer.js" defer></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+      integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+      crossorigin="anonymous"
+      defer
+    ></script>
     <title>Valorant Landing page</title>
   </head>
   <body class="valorant-color">
@@ -55,29 +62,15 @@
         </div>
         <div class="carousel-inner">
           <div class="carousel-item active custom-item">
-            <picture>
-              <source
-                srcset="images/Carousel1.avif"
-                class="custom-img"
-                type="image/avif"
-                width="1920"
-                height="1080"
-              />
-              <source
-                srcset="images/Carousel1.webp"
-                class="custom-img"
-                type="image/webp"
-                width="1920"
-                height="1080"
-              />
-              <img
-                src="images/Carousel1.jpg"
-                class="custom-img"
-                alt="Character image"
-                width="1920"
-                height="1080"
-              />
-            </picture>
+            <img
+              src="images/Carousel1.webp"
+              loading="eager"
+              fetchpriority="high"
+              class="custom-img"
+              alt="Character image"
+              width="1920"
+              height="1080"
+            />
             <div class="carousel-caption top-0 mt-4">
               <p class="fs-3 mt-5 text-uppercase">
                 Valorant agents come in all shapes and sizes. Each agent has
@@ -97,6 +90,7 @@
           <div class="carousel-item custom-item">
             <img
               src="images/Carousel2.webp"
+              defer
               class="d-block w-100 custom-img"
               fetchpriority="high"
               alt="Maps image"
@@ -122,6 +116,7 @@
           <div class="carousel-item custom-item">
             <img
               src="images/Carousel3.webp"
+              defer
               class="d-block w-100 custom-img"
               fetchpriority="high"
               alt="Weapon collection image"
@@ -265,13 +260,5 @@
       </div>
     </section>
     <div class="bg-dark text-light" id="footerId"></div>
-    <script defer src="/scripts/navbar.js"></script>
-    <script defer src="/scripts/footer.js"></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
-      integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
-      crossorigin="anonymous"
-      defer
-    ></script>
   </body>
 </html>
