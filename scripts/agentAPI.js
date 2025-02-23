@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       cardText.textContent = agent.description || "No description available.";
 
       const cardImage = document.createElement("img");
-      cardImage.className = "card-img-top c-item";
+      cardImage.className = "card-img-top c-item pt-2";
       cardImage.fetchpriority = "high";
       cardImage.alt = agent.displayName;
 

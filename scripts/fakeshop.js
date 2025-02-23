@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       cardText.textContent = weapon.shopData?.cost || "No cost available.";
 
       const cardImage = document.createElement("img");
-      cardImage.className = "card-img-top weapon-img";
+      cardImage.className = "card-img-top weapon-img pt-3";
       cardImage.fetchpriority = "high";
       cardImage.alt = weapon.displayName;
 

@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       const cardImage = document.createElement("img");
       cardImage.fetchpriority = "high";
-      cardImage.className = "card-img-top map-img ";
+      cardImage.className = "card-img-top map-img pt-2";
       cardImage.alt = map.displayName;
 
       cardBody.appendChild(cardTitle);
